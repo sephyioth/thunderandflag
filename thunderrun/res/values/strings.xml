@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">工兵扛军旗</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="str_score">得分：</string>
+    <string name="str_height_score">最高得分：</string>
+    <string name="str_mode_normal">普通模式</string>
+    <string name="str_mode_endless">无限模式</string>
+    <string name="str_localtion">地雷的位置：</string>
+    <string name="str_status">小兵状态：</string>
+
+    <string-array name="array_status">
+        <item>工兵</item>
+        <item>排长</item>
+        <item>连长</item>
+        <item>营长</item>
+        <item>团长</item>
+        <item>旅长</item>
+        <item>师长</item>
+        <item>军长</item>
+        <item>司令</item>
+        <item>无敌</item>
+    </string-array>
+    <string-array name="array_level">
+        <item>工兵</item>
+        <item>排长</item>
+        <item>连长</item>
+        <item>营长</item>
+        <item>团长</item>
+        <item>旅长</item>
+        <item>师长</item>
+        <item>军长</item>
+        <item>司令</item>
+        <item>地雷</item>
+    </string-array>
+
+</resources>
