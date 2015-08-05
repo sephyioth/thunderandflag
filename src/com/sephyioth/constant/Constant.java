@@ -19,16 +19,27 @@ public class Constant {
 
 	public static final int DEFAULT_SCORE = 100;
 	// 小兵的状态
+	/** 无敌时间 */
 	public static final int INVINCIBLE_TIME = 50;
-	public static final int GAME_ENGINEERSTATUS_PLATOON = 1; // 排长
-	public static final int GAME_ENGINEERSTATUS_COMPANY = 2; // 连长
-	public static final int GAME_ENGINEERSTATUS_BATTALION = 3; // 营长
-	public static final int GAME_ENGINEERSTATUS_HEAD = 4; // 团长
-	public static final int GAME_ENGINEERSTATUS_BRIGADIER = 5; // 旅长
-	public static final int GAME_ENGINEERSTATUS_MR = 6; // 师长
-	public static final int GAME_ENGINEERSTATUS_CAPTAINS = 7; // 军长
-	public static final int GAME_ENGINEERSTATUS_COMMANDER = 8; // 司令
-	public static final int GAME_ENGINEERSTATUS_INVINCIBLE = 9; // 无敌
+	/** 排长 */
+	public static final int GAME_ENGINEERSTATUS_PLATOON = 1;
+	/** 连长 */
+	public static final int GAME_ENGINEERSTATUS_COMPANY = 2;
+	/** 营长 */
+	public static final int GAME_ENGINEERSTATUS_BATTALION = 3; 
+	/** 团长 */
+	public static final int GAME_ENGINEERSTATUS_HEAD = 4; 
+	/** 旅长 */
+	public static final int GAME_ENGINEERSTATUS_BRIGADIER = 5; 
+	/** 师长 */
+	public static final int GAME_ENGINEERSTATUS_MR = 6; 
+	/** 军长 */
+	public static final int GAME_ENGINEERSTATUS_CAPTAINS = 7; 
+	/** 司令 */
+	public static final int GAME_ENGINEERSTATUS_COMMANDER = 8; 
+	/** 无敌 */
+	public static final int GAME_ENGINEERSTATUS_INVINCIBLE = 10; 
+	/** 工兵 */
 	public static final int GAME_ENGINEERSTATUS_NORMAL = 0;
 	// 刷新的时刻
 	public static final int GAME_FLASH_TIME = 50;
@@ -59,8 +70,8 @@ public class Constant {
 	public static final int LEADER_LEVEL_MINE = 9; // 地雷
 
 	// 小兵初始位置
-	public static final int ENGINEER_DEFAULT_Y = 3;
-	public static final int ENGINEER_STATUE_Y = 4;
+	public static final int ENGINEER_DEFAULT_Y = 2;
+	public static final int ENGINEER_STATUE_Y = 3;
 	// 追击者初始位置
 	public static final int TRACKER_DEFAULT_Y = 1;
 	// 碰撞事件

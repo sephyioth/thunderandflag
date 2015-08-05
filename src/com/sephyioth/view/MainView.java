@@ -1,5 +1,6 @@
 package com.sephyioth.view;
 
+import com.sephyioth.Bean.BasicModelBean;
 import com.sephyioth.Bean.EngineerBean;
 import com.sephyioth.Bean.LeaderBean;
 import com.sephyioth.Bean.ThunderBean;
@@ -49,7 +50,8 @@ public class MainView extends SurfaceView implements Callback {
 	// 兵线资源
 	private Bitmap mLeaderBackgroundBitmap = null;
 	private Bitmap mRoadScaleBitmap = null;
-	private Bitmap mTrackerBitmap = null;
+
+	private Bitmap mGameOverBitmap = null;
 
 	// 工兵图片
 	private static Bitmap mEngineerBitmap = null;
@@ -136,7 +138,7 @@ public class MainView extends SurfaceView implements Callback {
 		String string = mResources.getString(R.string.str_status) + time;
 		int textSize = mScreenX / 3 / string.length();
 		int localx = mScreenX / 2;
-		int localy = mScreenY / 15;
+		int localy = mScreenY / 8;
 		mPaint.setTextSize(textSize);
 		mCanvas.drawText(string, localx, localy, mPaint);
 
@@ -163,24 +165,50 @@ public class MainView extends SurfaceView implements Callback {
 	 * @param bean
 	 * @author Sephyioth */
 	public void drawEngineer(EngineerBean bean) {
+		if (mLeaderLevel != null) {
+			drawObject(
+					bean,
+					mEngineerBitmap,
+					mLeaderLevel[bean.getEngineerStatus() % mLeaderLevel.length]);
+		}
+
+	}
+
+	/** 画出对应的对象
+	 * 
+	 * @param bean
+	 * @param bitmap
+	 * @param text
+	 * @author Sephyioth */
+	private void drawObject(BasicModelBean bean, Bitmap bitmap, String text) {
 		if (bean == null) {
 			return;
 		}
-		if (mEngineerBitmap != null) {
-			int personw = mEngineerBitmap.getWidth();
-			int personh = mEngineerBitmap.getHeight();
+		if (bitmap != null) {
+			int personw = bitmap.getWidth();
+			int personh = bitmap.getHeight();
 			int roadw = mRoadScaleBitmap.getWidth();
 			int roadh = mRoadScaleBitmap.getHeight();
-			int localx = mDefineWidth + bean.getEngineerX() * roadw
+			int localx = mDefineWidth + bean.getLayoutX() * roadw
 					+ (roadw - personw) / 2;
 			int localy = mScreenY - bean.getLayoutY() * roadh
 					+ (roadh - personh) / 2;
+			int textSize = personw / 3;
+			if (bean instanceof TrackerBean) {
+				TrackerBean trackerBean = (TrackerBean) bean;
+				localy = mScreenY - mLeaderBackgroundBitmap.getHeight()
+						+ trackerBean.getCount();
+			}
+			mPaint.setTextSize(textSize);
 			int textx = (int) (localx + (personw / 2 - mPaint.getTextSize()));
 			int texty = (int) (localy + (personh + mPaint.getTextSize()) / 2);
-			drawPerson(mEngineerBitmap, localx, localy);
-			mPaint.setColor(Color.WHITE);
-			mCanvas.drawText(mLeaderLevel[bean.getEngineerStatus()], textx,
-					texty, mPaint);
+
+			if (bean.isVisable()) {
+				drawPerson(bitmap, localx, localy);
+				mPaint.setColor(Color.WHITE);
+				mCanvas.drawText(text, textx, texty, mPaint);
+			}
+
 			bean.setLocalX(localx);
 			bean.setLocalY(localy);
 			bean.setHeight(personh);
@@ -194,28 +222,10 @@ public class MainView extends SurfaceView implements Callback {
 	 * @param bean
 	 * @author Sephyioth */
 	public void drawThunder(ThunderBean bean) {
-		if (bean != null) {
-			int personw = mLeaderBackgroundBitmap.getWidth();
-			int personh = mLeaderBackgroundBitmap.getHeight();
-			int roadw = mRoadScaleBitmap.getWidth();
-			int roadh = mRoadScaleBitmap.getHeight();
-			int localx = mDefineWidth + bean.getThunderX() * roadw
-					+ (roadw - personw) / 2;
-			int localy = mScreenY - bean.getThunderY() * roadh
-					+ (roadh - personh) / 2;
-			drawRoad(bean.getThunderX(), bean.getThunderY());
-			int textx = (int) (localx + (personw / 2 - mPaint.getTextSize()));
-			int texty = (int) (localy + (personh + mPaint.getTextSize()) / 2);
-			if (bean.isVisable()) {
-				drawPerson(mLeaderBackgroundBitmap, localx, localy);
-				mPaint.setColor(Color.WHITE);
-				mCanvas.drawText(mLeaderLevel[Constant.LEADER_LEVEL_MINE],
-						textx, texty, mPaint);
-			}
-			bean.setLocalX(localx);
-			bean.setLocalY(localy);
-			bean.setHeight(personh);
-			bean.setWidth(personw);
+		if (bean != null && mLeaderBackgroundBitmap != null) {
+			drawRoad(bean.getLayoutX(), bean.getLayoutY());
+			drawObject(bean, mLeaderBackgroundBitmap,
+					mLeaderLevel[Constant.LEADER_LEVEL_MINE]);
 		}
 	}
 
@@ -225,28 +235,9 @@ public class MainView extends SurfaceView implements Callback {
 	 * @author Sephyioth */
 	public void drawLeader(LeaderBean bean) {
 		if (bean != null && mLeaderBackgroundBitmap != null) {
-			drawRoad(bean.getLeaderX(), bean.getLeaderY());
-
-			int personw = mLeaderBackgroundBitmap.getWidth();
-			int personh = mLeaderBackgroundBitmap.getHeight();
-			int roadw = mRoadScaleBitmap.getWidth();
-			int roadh = mRoadScaleBitmap.getHeight();
-			int localx = mDefineWidth + bean.getLeaderX() * roadw
-					+ (roadw - personw) / 2;
-			int localy = mScreenY - bean.getLeaderY() * roadh
-					+ (roadh - personh) / 2;
-			int textx = (int) (localx + (personw / 2 - mPaint.getTextSize()));
-			int texty = (int) (localy + (personh + mPaint.getTextSize()) / 2);
-			if (bean.isVisable()) {
-				drawPerson(mLeaderBackgroundBitmap, localx, localy);
-				mPaint.setColor(Color.WHITE);
-				mCanvas.drawText(mLeaderLevel[bean.getLeaderLevel()], textx,
-						texty, mPaint);
-			}
-			bean.setLocalX(localx);
-			bean.setLocalY(localy);
-			bean.setHeight(personh);
-			bean.setWidth(personw);
+			drawRoad(bean.getLayoutX(), bean.getLayoutY());
+			drawObject(bean, mLeaderBackgroundBitmap,
+					mLeaderLevel[bean.getLeaderLevel()]);
 		}
 	}
 
@@ -255,19 +246,9 @@ public class MainView extends SurfaceView implements Callback {
 	 * @param tracker
 	 * @author Sephyioth */
 	public void drawTracker(TrackerBean tracker) {
-		if (tracker != null && mTrackerBitmap != null) {
-			int roadw = mRoadScaleBitmap.getWidth();
-			int trackerw = mTrackerBitmap.getWidth();
-			int trackerh = mTrackerBitmap.getHeight();
-			int localx = mDefineWidth + roadw * tracker.getX()
-					+ (roadw - trackerw) / 2;
-			int localy = mScreenY - mTrackerBitmap.getHeight()
-					+ tracker.getCount();
-			mCanvas.drawBitmap(mTrackerBitmap, localx, localy, mPaint);
-			tracker.setLocalX(localx);
-			tracker.setLocalY(localy);
-			tracker.setHeight(trackerw);
-			tracker.setWidth(trackerh);
+		if (tracker != null && mLeaderBackgroundBitmap != null) {
+			drawObject(tracker, mLeaderBackgroundBitmap,
+					mLeaderLevel[Constant.LEADER_LEVEL_COMMANDER]);
 		}
 	}
 
@@ -292,11 +273,11 @@ public class MainView extends SurfaceView implements Callback {
 			Log.e(TAG, "game is null");
 			return;
 		}
-		caleTheSize(game.mGameLevel);
-		resizeRoadBitmap();
 		try {
 			mCanvas = mHolder.lockCanvas();
 			mCanvas.drawColor(Color.WHITE);
+			caleTheSize(game.mGameLevel);
+			resizeRoadBitmap();
 
 			for (int i = 0; i < game.getLeaderBeans().size(); i++) {
 				LeaderBean bean = game.getLeaderBeans().get(i);
@@ -333,6 +314,24 @@ public class MainView extends SurfaceView implements Callback {
 		mRoadScaleBitmap = resizeBitmap(mRoadLineBitmap, mScale, mScale);
 	}
 
+	public void drawGameLost() {
+		try {
+			mCanvas = mHolder.lockCanvas();
+			mCanvas.save();
+			mCanvas.drawColor(Color.WHITE);
+			if (mGameOverBitmap != null) {
+				mCanvas.drawBitmap(mGameOverBitmap, 0, 0, mPaint);
+			}
+			mCanvas.save();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (mCanvas != null)
+				mHolder.unlockCanvasAndPost(mCanvas);
+		}
+
+	}
+
 	/** 放大缩小图片
 	 * 
 	 * @param src
@@ -362,7 +361,7 @@ public class MainView extends SurfaceView implements Callback {
 	}
 
 	public int getScreenWidth() {
-		return this.mScreenX;
+		return mScreenX;
 	}
 
 	@Override
@@ -387,10 +386,13 @@ public class MainView extends SurfaceView implements Callback {
 				R.drawable.bmp_leaderbackground);
 		mEngineerBitmap = BitmapFactory.decodeResource(mResources,
 				R.drawable.bmp_enginnerbackground);
-		mTrackerBitmap = BitmapFactory.decodeResource(mResources,
-				R.drawable.emcar03);
 		mLeaderLevel = mResources.getStringArray(R.array.array_level);
 		mEnginneerStatus = mResources.getStringArray(R.array.array_status);
+		mGameOverBitmap = BitmapFactory.decodeResource(mResources,
+				R.drawable.gamelost);
+		mGameOverBitmap = resizeBitmap(mGameOverBitmap, (float) mScreenX
+				/ mGameOverBitmap.getWidth(), (float) mScreenY
+				/ mGameOverBitmap.getHeight());
 		mDefineWidth = mScreenX / 20;
 	}
 

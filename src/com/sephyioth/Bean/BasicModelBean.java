@@ -19,6 +19,7 @@ public class BasicModelBean {
 	// ** 构造函数 **/
 
 	// ** 成员方法 **/
+
 	public void setVisable(boolean isVisable) {
 		this.isVisable = isVisable;
 	}

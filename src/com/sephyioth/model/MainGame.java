@@ -273,11 +273,7 @@ public class MainGame extends Thread {
 
 		while (true) {
 			long start = System.currentTimeMillis();
-			if (mHandler != null) {
-				Message msg = new Message();
-				msg.what = Constant.MSG_FLASH;
-				mHandler.sendMessage(msg);
-			}
+
 			logic();
 			Integer collision = checkCollision();
 			if (collision != Constant.COLLISION_NONE) {
@@ -336,10 +332,16 @@ public class MainGame extends Thread {
 			if (mEngineerStatus == null) {
 				mEngineerStatus = new EngineerBean(getRandomX());
 				mEngineerStatus.setLayoutY(getRandomY());
-				mEngineerStatus.setEngineerStatus(getRandomLeaderLevel());
+				mEngineerStatus
+						.setEngineerStatus(getRandomLeaderLevel() % 5 + 5);
 			}
 			if (mEngineerBean != null) {
 				mEngineerBean.logic();
+			}
+			if (mHandler != null) {
+				Message msg = new Message();
+				msg.what = Constant.MSG_FLASH;
+				mHandler.sendMessage(msg);
 			}
 			break;
 		case Constant.GAME_PAUSE:
@@ -352,7 +354,11 @@ public class MainGame extends Thread {
 
 			break;
 		case Constant.GAME_LOST:
-
+			if (mHandler != null) {
+				Message msg = new Message();
+				msg.what = Constant.GAME_LOST;
+				mHandler.sendMessage(msg);
+			}
 			break;
 		default:
 			break;
@@ -396,38 +402,44 @@ public class MainGame extends Thread {
 		int thunderx = thunderBean.getLocalX();
 		int thunderw = screenW / mGameLevel;
 		// 正常模式下处理
+		if (mEngineerStatus != null) {
+			int ex = mEngineerStatus.getLocalX();
+			// 得到加持状态
+			if (x > ex
+					&& x <= ex + thunderw
+					&& mEngineerStatus.getLayoutY() == Constant.ENGINEER_STATUE_Y) {
+
+				mEngineerBean.setEngineerStatus(mEngineerStatus
+						.getEngineerStatus());
+				mEngineerBean.setEngineerX(mEngineerStatus.getLayoutX());
+				mEngineerStatus = null;
+				forword();
+				remove(mEngineerBean);
+				clearUnusedBeans();
+				dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
+				resetTracker();
+				return;
+			}
+		}
+		// 通常模式下小兵触地雷
 		if (mEngineerBean.getEngineerStatus() == Constant.GAME_ENGINEERSTATUS_NORMAL) {
 			// 是否碰地雷
-			if (mEngineerStatus != null) {
-				int ex = mEngineerStatus.getLocalX();
-				if (x > ex
-						&& x <= ex + thunderw
-						&& mEngineerStatus.getLayoutY() == Constant.ENGINEER_STATUE_Y) {
+			if (x >= thunderx && x <= thunderx + thunderw) {
+				mEngineerBean.setEngineerX(thunderBean.getThunderX());
+				forword();
+				clearUnusedBeans();
+				remove(mEngineerBean);
+				dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
+				resetTracker();
+				mScore++;
 
-					mEngineerBean.setEngineerStatus(mEngineerStatus
-							.getEngineerStatus());
-					mEngineerBean.setEngineerX(mEngineerStatus.getLayoutX());
-					mEngineerStatus = null;
-					forword();
-					remove(mEngineerBean);
-					clearUnusedBeans();
-					dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
-					resetTracker();
-
-				} else if (x >= thunderx && x <= thunderx + thunderw) {
-					mEngineerBean.setEngineerX(thunderBean.getThunderX());
-					forword();
-					clearUnusedBeans();
-					remove(mEngineerBean);
-					dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
-					resetTracker();
-					mScore++;
-
-				}
+			} else {
+				mGameState = Constant.GAME_LOST;
 			}
 		} else {
+			// 处理异常状态和无敌状态下的小兵
 			int layoutx = (int) (x / (screenW / mGameLevel));
-			if (mGameState == Constant.GAME_ENGINEERSTATUS_INVINCIBLE) {
+			if (isAliveWithLeader(layoutx, Constant.ENGINEER_STATUE_Y)) {
 				mEngineerBean.setEngineerX(layoutx);
 				forword();
 				clearUnusedBeans();
@@ -436,21 +448,7 @@ public class MainGame extends Thread {
 				resetTracker();
 				mScore++;
 			} else {
-				if (x >= thunderx && x <= thunderx + thunderw) {
-					mGameState = Constant.GAME_LOST;
-				} else if (isAliveWithLeader(layoutx,
-						Constant.ENGINEER_STATUE_Y)) {
-					mEngineerBean.setEngineerX(layoutx);
-					forword();
-					clearUnusedBeans();
-					remove(mEngineerBean);
-					dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
-					resetTracker();
-					mScore++;
-				} else {
-					mGameState = Constant.GAME_LOST;
-				}
-
+				mGameState = Constant.GAME_LOST;
 			}
 
 		}

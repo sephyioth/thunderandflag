@@ -36,7 +36,7 @@ public class MainActivity extends Activity implements OnTouchListener {
 
 				break;
 			case Constant.GAME_LOST:
-
+				mView.drawGameLost();
 				break;
 			case Constant.MSG_FLASH:
 				mView.onDraw(mGame);
