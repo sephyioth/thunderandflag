@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.sephyioth.Bean.EngineerBean;
@@ -23,12 +24,14 @@ public class MainGame extends Thread {
 
 	private static final String TAG = "mainGame";
 	public int mGameLevel = Constant.DEFAULT_LEVEL;
-	public int mGameState = Constant.GAME_START;
+	public int mGameState = Constant.GAME_MENU;
 
 	private long mScore = Constant.INT_0;
 	private long mHighScore = Constant.INT_0;
 	private int mLeaderNum = Constant.INT_1;
-	private int mInvincibleTime = Constant.GAME_ENGINEERSTATUS_INVINCIBLE;
+
+	private int mEndTimes = Constant.INT_0;
+	private int mPassedTime = Constant.INT_NEG;
 
 	private Vector<ThunderBean> mThunderBeans;
 	private EngineerBean mEngineerBean;
@@ -37,6 +40,7 @@ public class MainGame extends Thread {
 	private Vector<LeaderBean> mLeaderBeans;
 	private Context mContext;
 	private Handler mHandler;
+	private boolean isFlag = true;
 
 	/** 构造函数
 	 * 
@@ -54,14 +58,14 @@ public class MainGame extends Thread {
 		mEngineerBean = new EngineerBean(mGameLevel / 2);
 		mLeaderBeans = new Vector<LeaderBean>();
 		mScore = Constant.INT_0;
-		mGameState = Constant.GAME_START;
+		mGameState = Constant.GAME_MENU;
 	}
 
 	/** 新游戏
 	 * 
 	 * @author Sephyioth */
 	public void newGame() {
-		mGameState = Constant.GAME_START;
+		mPassedTime = Constant.INT_0;
 		mThunderBeans.removeAllElements();
 		mEngineerBean = new EngineerBean(mGameLevel / 2);
 		mScore = Constant.INT_0;
@@ -86,6 +90,18 @@ public class MainGame extends Thread {
 	 * 
 	 * @author Sephyioth */
 	private void dealGame(int line) {
+		switch (mGameState) {
+		case Constant.GAME_NORMAL_START:
+			if (mEndTimes <= mPassedTime) {
+				return;
+			}
+			break;
+		case Constant.GAME_ENDLESS:
+
+			break;
+		default:
+			break;
+		}
 		for (int i = line; i < Constant.THUNDER_DEFAULT_COUNT; i++) {
 			addThunder(i);
 			addLeader(i);
@@ -99,11 +115,18 @@ public class MainGame extends Thread {
 		if (mLeaderBeans == null) {
 			mLeaderBeans = new Vector<LeaderBean>();
 		}
-
+		boolean isLowLV = false;
 		for (int j = Constant.INT_0; j < mGameLevel; j++) {
 			if (mThunderBeans.get(mThunderBeans.size() - 1).getThunderX() != j) {
-				mLeaderBeans
-						.add(new LeaderBean(j, line, getRandomLeaderLevel()));
+				int level = getRandomLeaderLevel();
+				if (isLowLV) {
+					level = level % 5;
+				}
+				if (level > 5) {
+					isLowLV = true;
+				}
+
+				mLeaderBeans.add(new LeaderBean(j, line, level));
 			}
 		}
 	}
@@ -118,6 +141,7 @@ public class MainGame extends Thread {
 		if (mThunderBeans.size() < Constant.THUNDER_DEFAULT_COUNT) {
 			mThunderBeans.add(new ThunderBean(getRandomX(), line));
 		}
+		mPassedTime++;
 	}
 
 	/** 随机产生追击者等级
@@ -201,6 +225,14 @@ public class MainGame extends Thread {
 		return !(mGameState == Constant.GAME_ENDLESS || mGameState == Constant.GAME_ENDLESS_WON);
 	}
 
+	public boolean isFlag() {
+		return isFlag;
+	}
+
+	public void setFlag(boolean isFlag) {
+		this.isFlag = isFlag;
+	}
+
 	/** 取得游戏等级
 	 * 
 	 * @return
@@ -271,24 +303,19 @@ public class MainGame extends Thread {
 	 */
 	public void run() {
 
-		while (true) {
+		while (isFlag) {
 			long start = System.currentTimeMillis();
 
 			logic();
-			Integer collision = checkCollision();
-			if (collision != Constant.COLLISION_NONE) {
-				if (mHandler != null) {
-					Message msg = new Message();
-					msg.what = Constant.MSG_COLLISION;
-					msg.obj = collision;
-					mHandler.sendMessage(msg);
-
-				}
+			if (mHandler != null) {
+				Message msg = new Message();
+				msg.what = Constant.MSG_FLASH;
+				mHandler.sendMessage(msg);
 			}
 			long end = System.currentTimeMillis();
 			try {
 				if (end - start < 50) {
-					Thread.sleep(100);
+					Thread.sleep(25);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -301,6 +328,9 @@ public class MainGame extends Thread {
 	 * @return
 	 * @author Sephyioth */
 	public int checkCollision() {
+		if (mEngineerBean == null || mTrackerBean == null) {
+			return Constant.COLLISION_NONE;
+		}
 		int eny = mEngineerBean.getLocalY();
 		int enh = mEngineerBean.getHeight();
 		int tray = mTrackerBean.getLocalY();
@@ -325,29 +355,34 @@ public class MainGame extends Thread {
 	 * @author Sephyioth */
 	private void logic() {
 		switch (mGameState) {
-		case Constant.GAME_START:
-			if (mTrackerBean != null) {
+		case Constant.GAME_NORMAL_START:
+		case Constant.GAME_ENDLESS:
+		case Constant.GAME_TIME_MODE:
+			if (mTrackerBean != null
+					&& mEngineerBean.getEngineerStatus() != Constant.GAME_ENGINEERSTATUS_INVINCIBLE) {
 				mTrackerBean.logic();
 			}
 			if (mEngineerStatus == null) {
 				mEngineerStatus = new EngineerBean(getRandomX());
 				mEngineerStatus.setLayoutY(getRandomY());
 				mEngineerStatus
-						.setEngineerStatus(getRandomLeaderLevel() % 5 + 5);
+						.setEngineerStatus(getRandomLeaderLevel() % 5 + 6);
 			}
 			if (mEngineerBean != null) {
 				mEngineerBean.logic();
 			}
-			if (mHandler != null) {
-				Message msg = new Message();
-				msg.what = Constant.MSG_FLASH;
-				mHandler.sendMessage(msg);
+			Integer collision = checkCollision();
+			if (collision != Constant.COLLISION_NONE) {
+				if (mHandler != null) {
+					Message msg = new Message();
+					msg.what = Constant.MSG_COLLISION;
+					msg.obj = collision;
+					mHandler.sendMessage(msg);
+
+				}
 			}
 			break;
 		case Constant.GAME_PAUSE:
-
-			break;
-		case Constant.GAME_STOP:
 
 			break;
 		case Constant.GAME_WIN:
@@ -379,80 +414,13 @@ public class MainGame extends Thread {
 	 * @return
 	 * @author Sephyioth */
 	private ThunderBean findThunderBean(int engineery) {
-		int line = engineery + Constant.INT_1;
+		int line = engineery;
 		for (int i = 0; i < mThunderBeans.size(); i++) {
 			if (mThunderBeans.get(i).getThunderY() == line) {
 				return mThunderBeans.get(i);
 			}
 		}
 		return null;
-	}
-
-	/** 触发事件处理
-	 * 
-	 * @param x
-	 * @author Sephyioth */
-	public void dealTouch(float x, int screenW) {
-		ThunderBean thunderBean = findThunderBean(Constant.ENGINEER_DEFAULT_Y);
-
-		if (thunderBean == null) {
-			mGameState = Constant.GAME_WIN;
-			return;
-		}
-		int thunderx = thunderBean.getLocalX();
-		int thunderw = screenW / mGameLevel;
-		// 正常模式下处理
-		if (mEngineerStatus != null) {
-			int ex = mEngineerStatus.getLocalX();
-			// 得到加持状态
-			if (x > ex
-					&& x <= ex + thunderw
-					&& mEngineerStatus.getLayoutY() == Constant.ENGINEER_STATUE_Y) {
-
-				mEngineerBean.setEngineerStatus(mEngineerStatus
-						.getEngineerStatus());
-				mEngineerBean.setEngineerX(mEngineerStatus.getLayoutX());
-				mEngineerStatus = null;
-				forword();
-				remove(mEngineerBean);
-				clearUnusedBeans();
-				dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
-				resetTracker();
-				return;
-			}
-		}
-		// 通常模式下小兵触地雷
-		if (mEngineerBean.getEngineerStatus() == Constant.GAME_ENGINEERSTATUS_NORMAL) {
-			// 是否碰地雷
-			if (x >= thunderx && x <= thunderx + thunderw) {
-				mEngineerBean.setEngineerX(thunderBean.getThunderX());
-				forword();
-				clearUnusedBeans();
-				remove(mEngineerBean);
-				dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
-				resetTracker();
-				mScore++;
-
-			} else {
-				mGameState = Constant.GAME_LOST;
-			}
-		} else {
-			// 处理异常状态和无敌状态下的小兵
-			int layoutx = (int) (x / (screenW / mGameLevel));
-			if (isAliveWithLeader(layoutx, Constant.ENGINEER_STATUE_Y)) {
-				mEngineerBean.setEngineerX(layoutx);
-				forword();
-				clearUnusedBeans();
-				remove(mEngineerBean);
-				dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
-				resetTracker();
-				mScore++;
-			} else {
-				mGameState = Constant.GAME_LOST;
-			}
-
-		}
-
 	}
 
 	public Vector<LeaderBean> findLeaderByY(int y) {
@@ -480,7 +448,7 @@ public class MainGame extends Thread {
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 	public void forword() {
@@ -561,6 +529,10 @@ public class MainGame extends Thread {
 
 	}
 
+	/** 移除失效的leader和thunder
+	 * 
+	 * @param bean
+	 * @author Sephyioth */
 	public void remove(EngineerBean bean) {
 		removeLeaderbyEngineer(bean);
 		removeThunderbyEngineer(bean);
@@ -584,6 +556,167 @@ public class MainGame extends Thread {
 			ThunderBean thunderBean = mThunderBeans.get(i);
 			int y = thunderBean.getThunderY() - 1;
 			mThunderBeans.get(i).setThunderY(y);
+		}
+	}
+
+	/** 处理菜单的事件
+	 * 
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
+	 * @author Sephyioth */
+	private void dealMenuTouch(int x, int y, int width, int height) {
+
+		int mode = (int) ((float) x / (width / 2))
+				+ (int) ((float) y / (height / 2)) * 2;
+		int a = (int) ((float) y / (height / 2));
+		int b = (int) ((float) x / (width / 2));
+		System.out.printf("x=%d y= %d", a, b);
+		switch (mode) {
+		case Constant.GAME_MODE_NORMAL:
+			mGameState = Constant.GAME_NORMAL_START;
+			mEndTimes = Constant.LEVEL_STACK;
+			newGame();
+			break;
+		case Constant.GAME_MODE_ENDLESS:
+			mGameState = Constant.GAME_ENDLESS;
+			mEndTimes = Constant.INT_NEG;
+			newGame();
+			break;
+		case Constant.GAME_MODE_TIME:
+			mGameState = Constant.GAME_TIME_MODE;
+			newGame();
+			mEndTimes = Constant.LEVEL_STACK;
+			break;
+		case Constant.GAME_MODE_SETTING:
+			Message msg = new Message();
+			msg.what = Constant.MSG_SETTING;
+			mHandler.sendMessage(msg);
+			isFlag = false;
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	/** 触发事件处理
+	 * 
+	 * @param x
+	 * @author Sephyioth */
+	private void deaStartlTouch(float x, int screenW) {
+		ThunderBean thunderBean = findThunderBean(Constant.ENGINEER_STATUE_Y);
+
+		if (thunderBean == null) {
+			mGameState = Constant.GAME_WIN;
+			return;
+		}
+		int thunderx = thunderBean.getLocalX();
+		int thunderw = screenW / mGameLevel;
+		// 正常模式下处理
+		if (mEngineerStatus != null) {
+			int ex = mEngineerStatus.getLocalX();
+			// 得到加持状态
+			if (x > ex
+					&& x <= ex + thunderw
+					&& mEngineerStatus.getLayoutY() == Constant.ENGINEER_STATUE_Y) {
+
+				mEngineerBean.setEngineerStatus(mEngineerStatus
+						.getEngineerStatus());
+				mEngineerBean.setEngineerX(mEngineerStatus.getLayoutX());
+				mEngineerStatus = null;
+				forword();
+				remove(mEngineerBean);
+				clearUnusedBeans();
+				dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
+				resetTracker();
+				return;
+			}
+		}
+		// 通常模式下小兵触地雷
+		if (mEngineerBean.getEngineerStatus() == Constant.GAME_ENGINEERSTATUS_NORMAL) {
+			// 是否碰地雷
+			if (x >= thunderx && x <= thunderx + thunderw) {
+				mEngineerBean.setEngineerX(thunderBean.getThunderX());
+				forword();
+				clearUnusedBeans();
+				remove(mEngineerBean);
+				dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
+				resetTracker();
+				mScore++;
+
+			} else {
+				mGameState = Constant.GAME_LOST;
+			}
+		} else {
+			// 处理异常状态和无敌状态下的小兵
+			int layoutx = (int) (x / (screenW / mGameLevel));
+			if (isAliveWithLeader(layoutx, Constant.ENGINEER_STATUE_Y)
+					&& isAliveWithThunder(layoutx, Constant.ENGINEER_STATUE_Y)) {
+				mEngineerBean.setEngineerX(layoutx);
+				forword();
+				clearUnusedBeans();
+				remove(mEngineerBean);
+				dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
+				resetTracker();
+				mScore++;
+			} else {
+				mGameState = Constant.GAME_LOST;
+			}
+
+		}
+
+	}
+
+	/** 判断是否撞雷
+	 * 
+	 * @param layoutx
+	 * @param engineerStatueY
+	 * @return
+	 * @author Sephyioth */
+	private boolean isAliveWithThunder(int layoutx, int engineerStatueY) {
+		ThunderBean bean = findThunderBean(engineerStatueY);
+
+		if (bean != null) {
+			if (layoutx == bean.getLayoutX()) {
+				if (mEngineerBean.getEngineerStatus() == Constant.GAME_ENGINEERSTATUS_INVINCIBLE
+						|| mEngineerBean.getEngineerStatus() == Constant.GAME_ENGINEERSTATUS_NORMAL) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/** 处理事件
+	 * 
+	 * @param event
+	 * @param width
+	 * @param height
+	 * @author Sephyioth */
+	public void dealTouch(MotionEvent event, int width, int height) {
+		int eventX = (int) event.getX();
+		int eventY = (int) event.getY();
+		switch (mGameState) {
+		case Constant.GAME_NORMAL_START:
+		case Constant.GAME_ENDLESS:
+		case Constant.GAME_TIME_MODE:
+			deaStartlTouch(eventX, width);
+			break;
+		case Constant.GAME_PAUSE:
+
+			break;
+		case Constant.GAME_WIN:
+
+			break;
+		case Constant.GAME_LOST:
+			break;
+		case Constant.GAME_MENU:
+			dealMenuTouch(eventX, eventY, width, height);
+			break;
 		}
 	}
 }

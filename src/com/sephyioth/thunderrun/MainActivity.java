@@ -5,6 +5,7 @@ import com.sephyioth.model.MainGame;
 import com.sephyioth.view.MainView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -26,20 +27,27 @@ public class MainActivity extends Activity implements OnTouchListener {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case Constant.GAME_START:
+			case Constant.GAME_NORMAL_START:
 				mView.onDraw(mGame);
 				break;
 			case Constant.GAME_PAUSE:
 
 				break;
+			case Constant.GAME_ENDLESS:
+				mView.onDraw(mGame);
+				break;
 			case Constant.GAME_WIN:
 
 				break;
 			case Constant.GAME_LOST:
-				mView.drawGameLost();
+				mView.onDraw(mGame);
 				break;
 			case Constant.MSG_FLASH:
 				mView.onDraw(mGame);
+				break;
+			case Constant.MSG_SETTING:
+				jumpToSetting();
+				finish();
 				break;
 			case Constant.MSG_COLLISION:
 				if (msg.obj instanceof Integer) {
@@ -54,6 +62,9 @@ public class MainActivity extends Activity implements OnTouchListener {
 					}
 					mHandler.sendMessage(coMessage);
 				}
+			case Constant.GAME_MENU:
+				mView.onDraw(mGame);
+				break;
 			default:
 				break;
 			}
@@ -69,7 +80,7 @@ public class MainActivity extends Activity implements OnTouchListener {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		mView = new MainView(getBaseContext(), mHandler);
 		mGame = new MainGame(getBaseContext(), mHandler);
-		mGame.newGame();
+		// mGame.newGame();
 		mGame.start();
 		mView.setOnTouchListener(this);
 
@@ -90,12 +101,26 @@ public class MainActivity extends Activity implements OnTouchListener {
 		isInterappurt = true;
 	}
 
+	@Override
+	protected void onStop() {
+		super.onStop();
+	}
+
 	protected void onPause() {
 		super.onPause();
 		save();
 
 		isInterappurt = true;
 
+	}
+
+	/** 跳转到设置页面
+	 * 
+	 * @author Sephyioth */
+	private void jumpToSetting() {
+		Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
 	}
 
 	private void save() {
@@ -112,7 +137,7 @@ public class MainActivity extends Activity implements OnTouchListener {
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			mGame.dealTouch(event.getX(), mView.getScreenWidth());
+			mGame.dealTouch(event, mView.getWidth(), mView.getHeight());
 		}
 		return false;
 	}

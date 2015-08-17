@@ -7,9 +7,11 @@
     <string name="str_score">得分：</string>
     <string name="str_height_score">最高得分：</string>
     <string name="str_mode_normal">普通模式</string>
-    <string name="str_mode_endless">无限模式</string>
     <string name="str_localtion">地雷的位置：</string>
     <string name="str_status">小兵状态：</string>
+    <string name="str_mode_time">街机模式：</string>
+    <string name="str_mode_infinite">设置模式</string>
+    <string name="str_mode_setting">无限模式</string>
 
     <string-array name="array_status">
         <item>工兵</item>
@@ -21,7 +23,6 @@
         <item>师长</item>
         <item>军长</item>
         <item>司令</item>
-        <item>无敌</item>
     </string-array>
     <string-array name="array_level">
         <item>工兵</item>
@@ -35,5 +36,9 @@
         <item>司令</item>
         <item>地雷</item>
     </string-array>
+
+    <string name="str_feedback">反  馈</string>
+    <string name="str_about">关  于</string>
+    <string name="str_version">版本号：</string>
 
 </resources>
