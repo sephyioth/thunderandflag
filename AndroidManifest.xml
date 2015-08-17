@@ -30,6 +30,7 @@
             android:name="UMENG_CHANNEL"
             android:value="Umeng" >
         </meta-data>
+        <activity android:name="SettingActivity"></activity>
     </application>
 
 </manifest>
