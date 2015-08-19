@@ -44,10 +44,11 @@ public final class R {
         public static final int bmp_main=0x7f020004;
         public static final int bmp_road=0x7f020005;
         public static final int gamelost=0x7f020006;
-        public static final int ic_action_refresh=0x7f020007;
-        public static final int ic_action_settings=0x7f020008;
-        public static final int ic_launcher=0x7f020009;
-        public static final int logo=0x7f02000a;
+        public static final int gamewin=0x7f020007;
+        public static final int ic_action_refresh=0x7f020008;
+        public static final int ic_action_settings=0x7f020009;
+        public static final int ic_launcher=0x7f02000a;
+        public static final int logo=0x7f02000b;
     }
     public static final class id {
         public static final int TextView01=0x7f090004;

@@ -38,6 +38,7 @@ public class MainView extends SurfaceView implements Callback {
 	private GameLostView mGameLostView = null;
 	private GamePauseView mPauseView = null;
 	private GameMenuView mMenuView = null;
+	private GameWinView mGameWinView = null;
 
 	// ** 构造函数 **/
 	public MainView(Context context, Handler mHandler) {
@@ -71,9 +72,10 @@ public class MainView extends SurfaceView implements Callback {
 		try {
 			mCanvas = mHolder.lockCanvas();
 			switch (game.mGameState) {
+			case Constant.GAME_TIME:
+				mStartView.drawTime(game.getTime(), mCanvas, mPaint);
 			case Constant.GAME_NORMAL_START:
 				mStartView.onDraw(game, mCanvas, mPaint);
-				break;
 			case Constant.GAME_ENDLESS:
 				mStartView.onDraw(game, mCanvas, mPaint);
 				break;
@@ -86,6 +88,7 @@ public class MainView extends SurfaceView implements Callback {
 				mMenuView.onDraw(mCanvas, mPaint);
 				break;
 			case Constant.GAME_WIN:
+				mGameWinView.drawGameLost(mCanvas, mPaint, game);
 				break;
 			default:
 				break;
@@ -127,6 +130,8 @@ public class MainView extends SurfaceView implements Callback {
 		// mPauseView.initGame();
 		mMenuView = new GameMenuView(this);
 		mMenuView.initGame();
+		mGameWinView = new GameWinView(this);
+		mGameWinView.initGame();
 	}
 
 	public void setMenuView(GameMenuView menu) {

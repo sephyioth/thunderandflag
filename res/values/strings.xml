@@ -5,7 +5,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="str_score">得分：</string>
-    <string name="str_time">耗时：</string>
+    <string name="str_time">耗时：%1$d s</string>
     <string name="str_height_score">最高得分：</string>
     <string name="str_mode_normal">普通模式</string>
     <string name="str_localtion">地雷的位置：</string>

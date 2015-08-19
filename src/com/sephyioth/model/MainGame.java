@@ -29,6 +29,7 @@ public class MainGame extends Thread {
 	private long mScore = Constant.INT_0;
 	private long mHighScore = Constant.INT_0;
 	private long mTime = Constant.INT_0;
+	private long mLastTime;
 	private int mLeaderNum = Constant.INT_1;
 	private int mWidth = Constant.INT_0;
 	private int mHeight = Constant.INT_0;
@@ -68,12 +69,13 @@ public class MainGame extends Thread {
 	 * 
 	 * @author Sephyioth */
 	public void newGame() {
-		mPassedTime = Constant.INT_0;
 		mThunderBeans.removeAllElements();
 		mLeaderBeans.removeAllElements();
 		mEngineerBean = new EngineerBean(mGameLevel / 2);
 		mScore = Constant.INT_0;
 		mTime = Constant.INT_0;
+		mPassedTime = Constant.INT_0;
+		mLastTime = System.currentTimeMillis();
 		dealGame(Constant.ENGINEER_DEFAULT_Y + Constant.INT_1);
 		resetTracker();
 	}
@@ -107,15 +109,16 @@ public class MainGame extends Thread {
 		default:
 			break;
 		}
+		int level = (int) Math.log(mPassedTime);
+		if (level > mGameLevel - Constant.INT_1) {
+			mGameLevel = level;
+		}
 		for (int i = line; i < Constant.THUNDER_DEFAULT_COUNT; i++) {
 			addThunder(i);
 			addLeader(i);
 
 		}
-		int level = (int) Math.log(mPassedTime);
-		if (level <= mGameLevel - Constant.INT_1) {
-			mGameLevel = level;
-		}
+
 	}
 
 	/** 增加拦截者
@@ -126,7 +129,7 @@ public class MainGame extends Thread {
 			mLeaderBeans = new Vector<LeaderBean>();
 		}
 		boolean isLowLV = false;
-		for (int j = Constant.INT_0; j < mGameLevel; j++) {
+		for (int j = Constant.INT_0; j < Constant.MAX_LEVEL; j++) {
 			if (mThunderBeans.get(mThunderBeans.size() - 1).getThunderX() != j) {
 				int level = getRandomLeaderLevel();
 				if (isLowLV) {
@@ -182,9 +185,8 @@ public class MainGame extends Thread {
 	public long getHighScore() {
 		return mHighScore;
 	}
-	
-	public long getTime()
-	{
+
+	public long getTime() {
 		return mTime;
 	}
 
@@ -322,7 +324,6 @@ public class MainGame extends Thread {
 
 		while (isFlag) {
 			long start = System.currentTimeMillis();
-
 			logic();
 			if (mHandler != null) {
 				Message msg = new Message();
@@ -374,7 +375,7 @@ public class MainGame extends Thread {
 		switch (mGameState) {
 		case Constant.GAME_NORMAL_START:
 		case Constant.GAME_ENDLESS:
-		case Constant.GAME_TIME_MODE:
+		case Constant.GAME_TIME:
 			if (mTrackerBean != null
 					&& mEngineerBean.getEngineerStatus() != Constant.GAME_ENGINEERSTATUS_INVINCIBLE) {
 				// mTrackerBean.logic();
@@ -398,6 +399,8 @@ public class MainGame extends Thread {
 
 				}
 			}
+			long start = System.currentTimeMillis();
+			mTime = (start - mLastTime) / 1000;
 			break;
 		case Constant.GAME_PAUSE:
 
@@ -599,7 +602,7 @@ public class MainGame extends Thread {
 			newGame();
 			break;
 		case Constant.GAME_MODE_TIME:
-			mGameState = Constant.GAME_TIME_MODE;
+			mGameState = Constant.GAME_TIME;
 			newGame();
 			mEndTimes = Constant.LEVEL_STACK;
 			break;
@@ -717,7 +720,7 @@ public class MainGame extends Thread {
 		switch (mGameState) {
 		case Constant.GAME_NORMAL_START:
 		case Constant.GAME_ENDLESS:
-		case Constant.GAME_TIME_MODE:
+		case Constant.GAME_TIME:
 			if (!dealRefleash(eventX, eventY, width, height)) {
 				if (eventY > height / 12) {
 					deaStartlTouch(eventX, width);

@@ -71,7 +71,7 @@ public class MainActivity extends Activity implements OnTouchListener {
 					mHandler.sendMessage(coMessage);
 				}
 			case Constant.GAME_MENU:
-				mView.setMenuView(new GameMenuView(mView));
+				
 				break;
 			default:
 				break;

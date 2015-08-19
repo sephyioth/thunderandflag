@@ -1,10 +1,5 @@
 package com.sephyioth.view;
 
-import com.sephyioth.constant.Constant;
-import com.sephyioth.model.MainGame;
-import com.sephyioth.thunderrun.R;
-import com.sephyioth.tools.BitmapTools;
-
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,11 +9,16 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.SurfaceView;
 
-/** 类说明：游戏失败显示
+import com.sephyioth.constant.Constant;
+import com.sephyioth.model.MainGame;
+import com.sephyioth.thunderrun.R;
+import com.sephyioth.tools.BitmapTools;
+
+/** 类说明：
  * 
  * @author 作者 E-mail: lzrwolf@126.com
- * @version 创建时间：2015-8-5 下午4:08:17 */
-public class GameLostView {
+ * @version 创建时间：2015-8-19 下午5:26:28 */
+public class GameWinView {
 	// ** 常量 **/
 
 	// ** 变量 **/
@@ -27,7 +27,7 @@ public class GameLostView {
 	private SurfaceView mParentView;
 
 	// ** 构造函数 **/
-	public GameLostView(SurfaceView parentView) {
+	public GameWinView(SurfaceView parentView) {
 		mResources = parentView.getResources();
 		this.mParentView = parentView;
 	}
@@ -79,7 +79,4 @@ public class GameLostView {
 			mGameOverBitmap = null;
 		}
 	}
-	// ** 静态方法 **/
-
-	// ** 内部类接口 **/
 }

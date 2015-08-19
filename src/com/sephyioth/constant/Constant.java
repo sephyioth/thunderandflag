@@ -14,9 +14,10 @@ public class Constant {
 	public static final int GAME_LOST = -4;
 	public static final int GAME_NORMAL_WON = 1;
 	public static final int GAME_ENDLESS = 2;
-	public static final int GAME_TIME_MODE = 5;
+	public static final int GAME_TIME = 5;
 	public static final int GAME_ENDLESS_WON = 3;
 	public static final int GAME_MENU = 4;
+	
 
 	public static final int GAME_MODE_NORMAL = 0;
 	public static final int GAME_MODE_ENDLESS = 1;
@@ -102,11 +103,12 @@ public class Constant {
 	public static final int BUTTON_RUNDER = 10;
 	public static final int BUTTON_SPEED = 18;
 	public static final int BUTTON_PADDING = 30;
-
+	public static final int BUTTON_RUNDER_BIG = 30;
 	// 模式
 	public static final int LEVEL_STACK = 100;
 	public static final int LEVEL_COUNT = 100;
 	public static final int LEVEL = 30;
+	public static final int MAX_LEVEL = 10;
 
 	// ** 构造函数 **/
 

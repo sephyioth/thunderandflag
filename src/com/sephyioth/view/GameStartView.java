@@ -8,6 +8,8 @@ import com.sephyioth.Bean.TrackerBean;
 import com.sephyioth.constant.Constant;
 import com.sephyioth.model.MainGame;
 import com.sephyioth.thunderrun.R;
+import com.sephyioth.thunderrun.R.color;
+import com.sephyioth.thunderrun.R.string;
 import com.sephyioth.tools.BitmapTools;
 
 import android.content.res.Resources;
@@ -67,7 +69,9 @@ public class GameStartView {
 		resizeRoadBitmap();
 		for (int i = 0; i < game.getLeaderBeans().size(); i++) {
 			LeaderBean bean = game.getLeaderBeans().get(i);
-			drawLeader(bean);
+			if (bean.getLayoutX() < game.mGameLevel) {
+				drawLeader(bean);
+			}
 		}
 
 		for (int i = 0; i < game.getThunderBeans().size(); i++) {
@@ -86,6 +90,12 @@ public class GameStartView {
 		game.setSettingHeight(mSettingBitmap.getHeight());
 	}
 
+	/** Running
+	 * 
+	 * @param game
+	 * @param canvas
+	 * @param paint
+	 * @author Sephyioth */
 	private void drawRunning(MainGame game, Canvas canvas, Paint paint) {
 		if (game == null || canvas == null || paint == null) {
 			return;
@@ -409,6 +419,22 @@ public class GameStartView {
 			mEngineerBitmap.recycle();
 			mEngineerBitmap = null;
 		}
+	}
+
+	public void drawTime(long time, Canvas canvas, Paint paint) {
+		int localx = Constant.INT_0;
+		int localy = mScreenY * 11 / 12;
+		int width = mScreenX;
+		int height = mScreenY / 12;
+		paint.setColor(mResources.getColor(R.color.yblue));
+		RectF rect = new RectF(localx, localy, localx + width, localy + height);
+		canvas.drawRoundRect(rect, Constant.BUTTON_RUNDER,
+				Constant.BUTTON_RUNDER, paint);
+		paint.setColor(Color.WHITE);
+		String timeString = mResources.getString(R.string.str_time);
+		canvas.drawText(String.format(timeString, time),
+				width / 2 - paint.getTextSize() * 2, localy + mScreenY / 20,
+				paint);
 	}
 
 	// ** 静态方法 **/
