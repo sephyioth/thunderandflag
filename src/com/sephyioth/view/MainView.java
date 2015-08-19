@@ -73,9 +73,10 @@ public class MainView extends SurfaceView implements Callback {
 			mCanvas = mHolder.lockCanvas();
 			switch (game.mGameState) {
 			case Constant.GAME_TIME:
-				mStartView.drawTime(game.getTime(), mCanvas, mPaint);
-			case Constant.GAME_NORMAL_START:
 				mStartView.onDraw(game, mCanvas, mPaint);
+				mStartView.drawTime(game.getTime(), mCanvas, mPaint);
+				break;
+			case Constant.GAME_NORMAL_START:
 			case Constant.GAME_ENDLESS:
 				mStartView.onDraw(game, mCanvas, mPaint);
 				break;

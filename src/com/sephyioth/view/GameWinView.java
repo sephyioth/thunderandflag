@@ -67,7 +67,7 @@ public class GameWinView {
 
 	public void initGame() {
 		mGameOverBitmap = BitmapFactory.decodeResource(mResources,
-				R.drawable.gamelost);
+				R.drawable.gamewin);
 		mGameOverBitmap = BitmapTools.resizeBitmap(mGameOverBitmap,
 				(float) mParentView.getWidth() / mGameOverBitmap.getWidth(),
 				(float) mParentView.getHeight() / mGameOverBitmap.getHeight());

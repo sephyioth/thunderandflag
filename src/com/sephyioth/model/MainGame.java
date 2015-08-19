@@ -603,8 +603,8 @@ public class MainGame extends Thread {
 			break;
 		case Constant.GAME_MODE_TIME:
 			mGameState = Constant.GAME_TIME;
-			newGame();
 			mEndTimes = Constant.LEVEL_STACK;
+			newGame();
 			break;
 		case Constant.GAME_MODE_SETTING:
 			Message msg = new Message();
