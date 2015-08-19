@@ -28,7 +28,10 @@ public class MainGame extends Thread {
 
 	private long mScore = Constant.INT_0;
 	private long mHighScore = Constant.INT_0;
+	private long mTime = Constant.INT_0;
 	private int mLeaderNum = Constant.INT_1;
+	private int mWidth = Constant.INT_0;
+	private int mHeight = Constant.INT_0;
 
 	private int mEndTimes = Constant.INT_0;
 	private int mPassedTime = Constant.INT_NEG;
@@ -67,8 +70,10 @@ public class MainGame extends Thread {
 	public void newGame() {
 		mPassedTime = Constant.INT_0;
 		mThunderBeans.removeAllElements();
+		mLeaderBeans.removeAllElements();
 		mEngineerBean = new EngineerBean(mGameLevel / 2);
 		mScore = Constant.INT_0;
+		mTime = Constant.INT_0;
 		dealGame(Constant.ENGINEER_DEFAULT_Y + Constant.INT_1);
 		resetTracker();
 	}
@@ -105,6 +110,11 @@ public class MainGame extends Thread {
 		for (int i = line; i < Constant.THUNDER_DEFAULT_COUNT; i++) {
 			addThunder(i);
 			addLeader(i);
+
+		}
+		int level = (int) Math.log(mPassedTime);
+		if (level <= mGameLevel - Constant.INT_1) {
+			mGameLevel = level;
 		}
 	}
 
@@ -142,6 +152,7 @@ public class MainGame extends Thread {
 			mThunderBeans.add(new ThunderBean(getRandomX(), line));
 		}
 		mPassedTime++;
+
 	}
 
 	/** 随机产生追击者等级
@@ -170,6 +181,11 @@ public class MainGame extends Thread {
 	 * @author Sephyioth */
 	public long getHighScore() {
 		return mHighScore;
+	}
+	
+	public long getTime()
+	{
+		return mTime;
 	}
 
 	/** 游戏胜利与否
@@ -204,6 +220,7 @@ public class MainGame extends Thread {
 	 * 
 	 * @author Sephyioth */
 	private void endGame() {
+		mGameState = Constant.GAME_LOST;
 		if (mScore >= mHighScore) {
 			mHighScore = mScore;
 			recordHighScore();
@@ -360,7 +377,7 @@ public class MainGame extends Thread {
 		case Constant.GAME_TIME_MODE:
 			if (mTrackerBean != null
 					&& mEngineerBean.getEngineerStatus() != Constant.GAME_ENGINEERSTATUS_INVINCIBLE) {
-				mTrackerBean.logic();
+				// mTrackerBean.logic();
 			}
 			if (mEngineerStatus == null) {
 				mEngineerStatus = new EngineerBean(getRandomX());
@@ -570,9 +587,6 @@ public class MainGame extends Thread {
 
 		int mode = (int) ((float) x / (width / 2))
 				+ (int) ((float) y / (height / 2)) * 2;
-		int a = (int) ((float) y / (height / 2));
-		int b = (int) ((float) x / (width / 2));
-		System.out.printf("x=%d y= %d", a, b);
 		switch (mode) {
 		case Constant.GAME_MODE_NORMAL:
 			mGameState = Constant.GAME_NORMAL_START;
@@ -614,6 +628,7 @@ public class MainGame extends Thread {
 		}
 		int thunderx = thunderBean.getLocalX();
 		int thunderw = screenW / mGameLevel;
+
 		// 正常模式下处理
 		if (mEngineerStatus != null) {
 			int ex = mEngineerStatus.getLocalX();
@@ -645,9 +660,8 @@ public class MainGame extends Thread {
 				dealGame(Constant.THUNDER_DEFAULT_COUNT - Constant.INT_1);
 				resetTracker();
 				mScore++;
-
 			} else {
-				mGameState = Constant.GAME_LOST;
+				endGame();
 			}
 		} else {
 			// 处理异常状态和无敌状态下的小兵
@@ -662,7 +676,7 @@ public class MainGame extends Thread {
 				resetTracker();
 				mScore++;
 			} else {
-				mGameState = Constant.GAME_LOST;
+				endGame();
 			}
 
 		}
@@ -704,7 +718,11 @@ public class MainGame extends Thread {
 		case Constant.GAME_NORMAL_START:
 		case Constant.GAME_ENDLESS:
 		case Constant.GAME_TIME_MODE:
-			deaStartlTouch(eventX, width);
+			if (!dealRefleash(eventX, eventY, width, height)) {
+				if (eventY > height / 12) {
+					deaStartlTouch(eventX, width);
+				}
+			}
 			break;
 		case Constant.GAME_PAUSE:
 
@@ -713,10 +731,33 @@ public class MainGame extends Thread {
 
 			break;
 		case Constant.GAME_LOST:
+			mGameState = Constant.GAME_MENU;
+			Message msg = new Message();
+			msg.what = Constant.GAME_MENU;
+			mHandler.sendMessage(msg);
 			break;
 		case Constant.GAME_MENU:
 			dealMenuTouch(eventX, eventY, width, height);
 			break;
 		}
+	}
+
+	public void setSettingWidth(int width) {
+		this.mWidth = width;
+	}
+
+	public void setSettingHeight(int height) {
+		this.mHeight = height;
+	}
+
+	private boolean dealRefleash(int eventX, int eventY, int width, int height) {
+		int localx = width * 4 / 5;
+		int localy = height / 12;
+		if (eventX > localx && eventX < localx + mWidth && eventY > localy
+				&& eventY < localy + mHeight) {
+			newGame();
+			return true;
+		}
+		return false;
 	}
 }

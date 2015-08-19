@@ -2,7 +2,12 @@ package com.sephyioth.thunderrun;
 
 import com.sephyioth.constant.Constant;
 import com.sephyioth.model.MainGame;
+import com.sephyioth.spconfig.SPConfig;
+import com.sephyioth.tools.ApplicationManager;
+import com.sephyioth.view.GameMenuView;
 import com.sephyioth.view.MainView;
+
+import android.R.menu;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -37,7 +42,7 @@ public class MainActivity extends Activity implements OnTouchListener {
 				mView.onDraw(mGame);
 				break;
 			case Constant.GAME_WIN:
-
+				mView.onDraw(mGame);
 				break;
 			case Constant.GAME_LOST:
 				mView.onDraw(mGame);
@@ -48,6 +53,9 @@ public class MainActivity extends Activity implements OnTouchListener {
 			case Constant.MSG_SETTING:
 				jumpToSetting();
 				finish();
+				break;
+			case Constant.MSG_NEWGAME:
+				mGame.newGame();
 				break;
 			case Constant.MSG_COLLISION:
 				if (msg.obj instanceof Integer) {
@@ -63,7 +71,7 @@ public class MainActivity extends Activity implements OnTouchListener {
 					mHandler.sendMessage(coMessage);
 				}
 			case Constant.GAME_MENU:
-				mView.onDraw(mGame);
+				mView.setMenuView(new GameMenuView(mView));
 				break;
 			default:
 				break;
@@ -80,16 +88,17 @@ public class MainActivity extends Activity implements OnTouchListener {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		mView = new MainView(getBaseContext(), mHandler);
 		mGame = new MainGame(getBaseContext(), mHandler);
-		// mGame.newGame();
 		mGame.start();
+		SPConfig spConfig = new SPConfig(getApplication());
 		mView.setOnTouchListener(this);
 
 		if (savedInstanceState != null) {
 			if (savedInstanceState.getBoolean("hasState")) {
 				load();
 			}
+		} else {
+			SPConfig.getConfig();
 		}
-
 		setContentView(mView);
 
 	}
@@ -103,6 +112,7 @@ public class MainActivity extends Activity implements OnTouchListener {
 
 	@Override
 	protected void onStop() {
+		save();
 		super.onStop();
 	}
 
@@ -124,6 +134,11 @@ public class MainActivity extends Activity implements OnTouchListener {
 	}
 
 	private void save() {
+
+		SPConfig spConfig = SPConfig.getConfig();
+		spConfig.saveStatus(true);
+		spConfig.setLong(SPConfig.SCORE, mGame.getScore());
+		spConfig.setInt(SPConfig.GAME_STATE, mGame.getGameState());
 	}
 
 	protected void onResume() {
@@ -132,6 +147,13 @@ public class MainActivity extends Activity implements OnTouchListener {
 	}
 
 	private void load() {
+		int time = SPConfig.getConfig().getInt(SPConfig.RUNNING_TIME);
+		if (time > 0 && time % 20 == 0) {
+			ApplicationManager.showFeedBackDialog(MainActivity.this);
+		}
+		SPConfig spConfig = SPConfig.getConfig();
+		long hightScore = spConfig.getLong(SPConfig.HIGH_SCORE);
+		mGame.setHighScore(hightScore);
 	}
 
 	@Override

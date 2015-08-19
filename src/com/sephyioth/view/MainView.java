@@ -2,6 +2,8 @@ package com.sephyioth.view;
 
 import com.sephyioth.constant.Constant;
 import com.sephyioth.model.MainGame;
+
+import android.R.menu;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -76,7 +78,7 @@ public class MainView extends SurfaceView implements Callback {
 				mStartView.onDraw(game, mCanvas, mPaint);
 				break;
 			case Constant.GAME_LOST:
-				mGameLostView.drawGameLost(mCanvas, mPaint);
+				mGameLostView.drawGameLost(mCanvas, mPaint, game);
 				break;
 			case Constant.GAME_PAUSE:
 				break;
@@ -125,6 +127,10 @@ public class MainView extends SurfaceView implements Callback {
 		// mPauseView.initGame();
 		mMenuView = new GameMenuView(this);
 		mMenuView.initGame();
+	}
+
+	public void setMenuView(GameMenuView menu) {
+		mMenuView = menu;
 	}
 
 	@Override

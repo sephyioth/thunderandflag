@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.Log;
 import android.view.SurfaceView;
 
@@ -39,6 +40,7 @@ public class GameStartView {
 	private Bitmap mRoadScaleBitmap = null;
 	private Bitmap mInvBitmap = null;
 	private Bitmap mBackgroundBitmap = null;
+	private Bitmap mSettingBitmap = null;
 	public int mScreenX, mScreenY;
 	// 工兵图片
 	private static Bitmap mEngineerBitmap = null;
@@ -74,13 +76,56 @@ public class GameStartView {
 		}
 		EngineerBean bean = game.getEngineerBean();
 		drawTracker(game.getTrackerBean());
+
+		drawRunning(game, canvas, paint);
+		if (bean.getEngineerStatus() != Constant.GAME_ENGINEERSTATUS_NORMAL) {
+			drawEngineerStatusTime(bean.getInvTime(), canvas, paint);
+		}
+		drawSettingBmp(canvas, paint);
+		game.setSettingWidth(mSettingBitmap.getWidth());
+		game.setSettingHeight(mSettingBitmap.getHeight());
+	}
+
+	private void drawRunning(MainGame game, Canvas canvas, Paint paint) {
+		if (game == null || canvas == null || paint == null) {
+			return;
+		}
+		int localx = 0;
+		int localy = 0;
+		int width = mScreenX;
+		int height = mScreenY / 7;
+
+		EngineerBean bean = game.getEngineerBean();
+		drawEngineer(bean);
+		drawEngineer(game.getEngineerStatus());
+		paint.setColor(mResources.getColor(R.color.ygreen));
+		RectF rect = new RectF(localx, localy, localx + width, localy + height);
+		canvas.drawRoundRect(rect, Constant.BUTTON_RUNDER,
+				Constant.BUTTON_RUNDER, paint);
 		drawScore(game.getScore(), canvas, paint);
 		drawHeightScore(game.getHighScore(), canvas, paint);
 		drawEngineerStatus(bean.getEngineerStatus(), canvas, paint);
-		drawEngineer(bean);
-		drawEngineer(game.getEngineerStatus());
-		if (bean.getEngineerStatus() != Constant.GAME_ENGINEERSTATUS_NORMAL) {
-			drawEngineerStatusTime(bean.getInvTime(), canvas, paint);
+
+	}
+
+	/** 画设置的Bar
+	 * 
+	 * @param canvas
+	 * @param paint
+	 * @author Sephyioth */
+	private void drawSettingBmp(Canvas canvas, Paint paint) {
+		if (canvas != null && paint != null && mSettingBitmap != null) {
+			int localx = mScreenX * 4 / 5;
+			int localy = mScreenY / 12;
+			int width = mSettingBitmap.getWidth();
+			int height = mSettingBitmap.getHeight();
+			paint.setColor(mResources.getColor(R.color.yblue));
+			RectF rect = new RectF(localx, localy, localx + width, localy
+					+ height);
+			canvas.drawRoundRect(rect, Constant.BUTTON_RUNDER,
+					Constant.BUTTON_RUNDER, paint);
+
+			canvas.drawBitmap(mSettingBitmap, localx, localy, paint);
 		}
 	}
 
@@ -118,7 +163,7 @@ public class GameStartView {
 	 * @author Sephyioth */
 	public void drawHeightScore(long score, Canvas canvas, Paint paint) {
 		paint.setColor(Color.WHITE);
-		String scoreString = "" + 0;
+		String scoreString = "" + score;
 		int textlength = scoreString.length() > Constant.HEIGHT_SCORE ? scoreString
 				.length() : Constant.HEIGHT_SCORE;
 		int scoreSize = mScreenX / 2 / textlength;
@@ -336,6 +381,8 @@ public class GameStartView {
 
 		mBackgroundBitmap = BitmapFactory.decodeResource(mResources,
 				R.drawable.bmp_background);
+		mSettingBitmap = BitmapFactory.decodeResource(mResources,
+				R.drawable.ic_action_refresh);
 		mBackgroundBitmap = BitmapTools.resizeBitmap(mBackgroundBitmap,
 				(float) mScreenX / mBackgroundBitmap.getWidth(),
 				(float) mScreenY / mBackgroundBitmap.getHeight());

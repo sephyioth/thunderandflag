@@ -1,5 +1,7 @@
 package com.sephyioth.view;
 
+import com.sephyioth.constant.Constant;
+import com.sephyioth.model.MainGame;
 import com.sephyioth.thunderrun.R;
 import com.sephyioth.tools.BitmapTools;
 
@@ -9,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.view.SurfaceView;
 
 /** 类说明：游戏失败显示
@@ -33,11 +36,33 @@ public class GameLostView {
 	/** 绘制游戏失败的页面
 	 * 
 	 * @author Sephyioth */
-	public void drawGameLost(Canvas canvas, Paint paint) {
-		canvas.drawColor(Color.WHITE);
+	public void drawGameLost(Canvas canvas, Paint paint, MainGame game) {
 		if (mGameOverBitmap != null) {
 			canvas.drawBitmap(mGameOverBitmap, 0, 0, paint);
 		}
+
+		int left = mParentView.getWidth() / 5;
+		int right = mParentView.getWidth() * 4 / 5;
+		int top = mParentView.getHeight() / 3;
+		int bottom = mParentView.getHeight() * 2 / 3;
+		paint.setColor(mResources.getColor(R.color.yblue));
+		RectF rect = new RectF(left, top, right, bottom);
+		canvas.drawRoundRect(rect, Constant.BUTTON_RUNDER,
+				Constant.BUTTON_RUNDER, paint);
+		paint.setColor(Color.WHITE);
+		int size = Math.abs(right - left) / 10;
+		paint.setTextSize(size);
+
+		canvas.drawText(
+				mResources.getString(R.string.str_score) + game.getScore(),
+				(right + left) / 2 - size * 4, (top + bottom) / 2 - size * 2,
+				paint);
+		canvas.drawText(
+				mResources.getString(R.string.str_time) + game.getScore(),
+				(right + left) / 2 - size * 4, (top + bottom) / 2, paint);
+
+		canvas.drawText("Touch to try again", (right + left) / 2 - size * 4,
+				(top + bottom) / 2 + size * 3, paint);
 
 	}
 

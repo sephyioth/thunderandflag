@@ -63,8 +63,9 @@ public class Constant {
 	public static final int MSG_FLASH = 100;
 	public static final int MSG_COLLISION = 101;
 	public static final int MSG_AMIN_FINISH = 102;
-	public static final int HEIGHT_SCORE = 7;
 	public static final int MSG_SETTING = 103;
+	public static final int MSG_NEWGAME = 104;
+	public static final int HEIGHT_SCORE = 7;
 	// 小兵的等级
 	public static final int LEADER_LEVEL_ENGINNER = 0; // 工兵
 	public static final int LEADER_LEVEL_PLATOON = 1; // 排长
